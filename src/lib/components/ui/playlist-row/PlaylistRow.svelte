@@ -7,27 +7,35 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as ContextMenu from '$lib/components/ui/context-menu';
 	import { Button } from '$lib/components/ui/button';
-	import { Check, Edit, MoreHorizontal, X } from 'lucide-svelte';
+	import { Check, Edit, MoreHorizontal, Trash } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
-	import Input from '../input/input.svelte';
+	import { Input } from '$lib/components/ui/input';
+	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
+	import { Switch } from '$lib/components/ui/switch';
+	import * as Select from '$lib/components/ui/select';
+	import type { User } from '$lib';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 
 	export let Id: number;
-	export let Nickname: string;
-	export let Email: string;
-	export let Password: string;
+	export let Title: string;
+	export let UserId: number;
+	export let IsPrivate: boolean;
+	export let users: User[];
 
-	let newNickname: string;
-	let newEmail: string;
-	let newPassword: string;
+	let newTitle: string;
+	let newUserId: number;
+	let newIsPrivate: boolean;
 
 	let row: HTMLElement | null | undefined;
 	let rowSelected = false;
 	let dropdownMenuOpened = false;
+	let actualDropdownMenuOpened = false;
+	let contextMenuOpened = false;
 	let triggerHidden = true;
 	let editMode = false;
 
-	const deleteUser = async () => {
-		const result: { 0: string; 1: boolean } = await invoke('delete_user', { id: Id });
+	const deletePlaylist = async () => {
+		const result: { 0: string; 1: boolean } = await invoke('delete_playlist', { id: Id });
 		let id: string | number = 0;
 		if (result[1]) {
 			id = toast.info(result[0]);
@@ -37,16 +45,29 @@
 		setTimeout(() => toast.dismiss(id), 1600);
 	};
 
-	const editUser = () => {
+	const editPlaylist = () => {
 		// api-call here
+		toast.success('Successfully edited playlist');
 		editMode = false;
 	};
 
 	const openEditDialog = () => {
 		editMode = true;
-		newNickname = Nickname;
-		newEmail = Email;
-		newPassword = Password;
+		newTitle = Title;
+		newUserId = UserId;
+		newIsPrivate = IsPrivate;
+		setTimeout(() => {
+			const overlays = document.getElementsByClassName('bg-background/80');
+			for (const element of overlays) {
+				// element.classList.replace('fixed', 'absolute');
+				element.classList.replace('inset-0', 'top-30');
+				element.classList.replace('bg-background/80', 'bg-background/90');
+				element.classList.add('bottom-0', 'left-0', 'right-0', 'w-full', 'h-[95vh]');
+				element.addEventListener('click', () => {
+					editMode = false;
+				});
+			}
+		}, 1);
 	};
 
 	onMount(() => {
@@ -66,7 +87,10 @@
 
 	const showTrigger = (event: MouseEvent) => {
 		if (event.button === 2) {
+			contextMenuOpened = false;
 			triggerHidden = false;
+			actualDropdownMenuOpened = false;
+			setTimeout(() => (dropdownMenuOpened = actualDropdownMenuOpened), 100);
 		}
 	};
 
@@ -78,84 +102,117 @@
 </script>
 
 <Dialog.Root bind:open={editMode}>
-	<Dialog.Content>
+	<Dialog.Content class="border-none">
 		<Dialog.Header>
-			<Dialog.Title>Edit user entry</Dialog.Title>
+			<Dialog.Title>Edit playlist entry</Dialog.Title>
 		</Dialog.Header>
 
 		<div class="grid grid-cols-4 w-full gap-4">
 			<div class="col-span-1 space-y-4">
 				<div class="flex items-center h-12 text-sm">Id</div>
-				<div class="flex items-center h-12 text-sm">Nickname</div>
-				<div class="flex items-center h-12 text-sm">Email</div>
-				<div class="flex items-center h-12 text-sm">Password</div>
+				<div class="flex items-center h-12 text-sm">UserId</div>
+				<div class="flex items-center h-12 text-sm">Title</div>
+				<div class="flex items-center h-12 text-sm">IsPrivate</div>
 			</div>
-			<div class="col-span-3 space-y-4">
+			<div class="col-span-3 space-y-4 select-none">
 				<Input disabled value={Id} class="h-12 bg-backgroundSecondary" />
-				<Input bind:value={newNickname} class="h-12 bg-backgroundSecondary" />
-				<Input bind:value={newEmail} class="h-12 bg-backgroundSecondary" />
-				<Input bind:value={newPassword} class="h-12 bg-backgroundSecondary" />
+				<Select.Root onSelectedChange={(v) => (newUserId = Number.parseInt(`${v?.value}`))}>
+					<Select.Trigger class="bg-backgroundSecondary h-12">
+						<Select.Value
+							placeholder={UserId.toString() +
+								' | ' +
+								users.filter((u) => u.Id === UserId)[0].Nickname}
+						/>
+					</Select.Trigger>
+					<Select.Content class="bg-third border-none">
+						<Select.Group>
+							{#each users as { Nickname, Id }}
+								<Select.Item value={Id} label={Id.toString() + ' | ' + Nickname} />
+							{/each}
+						</Select.Group>
+					</Select.Content>
+				</Select.Root>
+				<Input bind:value={newTitle} class="h-12 bg-backgroundSecondary" />
+				<div class="h-12 flex items-center">
+					<Switch
+						bind:checked={newIsPrivate}
+						class="data-[state=unchecked]:bg-backgroundSecondary"
+					/>
+				</div>
 			</div>
 		</div>
 
 		<Dialog.Footer>
-			<Button
-				variant="outline"
-				class="bg-third hover:bg-backgroundSecondary"
-				type="submit"
-				on:click={editUser}><Check size={24} /></Button
+			<Button class="bg-primary size-12 p-0" type="submit" on:click={editPlaylist}
+				><Check size={24} /></Button
 			>
 		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>
 
-<ContextMenu.Root>
+<ContextMenu.Root bind:open={contextMenuOpened}>
 	<ContextMenu.Trigger asChild let:builder>
 		<Table.Row class="cursor-default">
 			<Table.Cell>
 				<span bind:this={row} class="select-text">{Id}</span>
 			</Table.Cell>
 			<Table.Cell>
-				<span bind:this={row} class="select-text">{Nickname}</span>
+				<Tooltip.Root>
+					<Tooltip.Trigger class="w-full">
+						<span bind:this={row} class="select-text">{UserId}</span>
+					</Tooltip.Trigger>
+					<Tooltip.Content>
+						<p>{users.find((u) => u.Id === UserId)?.Nickname}</p>
+					</Tooltip.Content>
+				</Tooltip.Root>
 			</Table.Cell>
 			<Table.Cell>
-				<span bind:this={row} class="select-text">{Email}</span>
+				<span class="select-text">{Title}</span>
 			</Table.Cell>
-			<Table.Cell>
-				<span bind:this={row} class="select-text">{Password}</span>
+			<Table.Cell class="p-0">
+				<div class="flex w-full justify-center">
+					<Checkbox disabled checked={IsPrivate} class="disabled:hover:cursor-default" />
+				</div>
 			</Table.Cell>
+
 			<Table.Cell>
 				<DropdownMenu.Root
+					bind:open={actualDropdownMenuOpened}
 					onOpenChange={() =>
 						setTimeout(
 							() => {
-								dropdownMenuOpened = !dropdownMenuOpened;
+								dropdownMenuOpened = actualDropdownMenuOpened;
 							},
-							dropdownMenuOpened ? 100 : 0
+							actualDropdownMenuOpened ? 100 : 0
 						)}
 				>
 					<DropdownMenu.Trigger asChild let:builder>
 						<div class="bg-transparent w-[32px] h-[8px] flex items-center justify-center">
 							<Button
 								builders={[builder]}
-								variant="outline"
-								class="size-6 p-0 m-0 transition-opacity delay-150 {!rowSelected &&
+								class="size-5 p-0 m-0 transition-opacity delay-150 {!rowSelected &&
 								!dropdownMenuOpened
 									? 'hidden'
 									: ''}"><MoreHorizontal size={12} /></Button
 							>
 						</div>
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-24">
-						<DropdownMenu.Item class="cursor-pointer" on:click={openEditDialog}>
+					<DropdownMenu.Content
+						style="min-width: 0;"
+						class=" w-[100px] p-0 border-third rounded-none bg-background"
+					>
+						<DropdownMenu.Item
+							class="cursor-pointer data-[highlighted]:bg-primary rounded-none"
+							on:click={openEditDialog}
+						>
 							<Edit class="mr-2 size-4" />
 							<span>Edit</span>
 						</DropdownMenu.Item>
 						<DropdownMenu.Item
-							class="cursor-pointer dark:bg-red-700 dark:hover:bg-red-600 dark:data-[highlighted]:bg-red-600 bg-red-500 hover:bg-red-400 data-[highlighted]:bg-red-400"
-							on:click={deleteUser}
+							class="cursor-pointer data-[highlighted]:bg-primary rounded-none"
+							on:click={deletePlaylist}
 						>
-							<X class="mr-2 size-4" />
+							<Trash class="mr-2 size-4 stroke-red-600" />
 							<span>Remove</span>
 						</DropdownMenu.Item>
 					</DropdownMenu.Content>
@@ -170,16 +227,22 @@
 			/>
 		</Table.Row>
 	</ContextMenu.Trigger>
-	<ContextMenu.Content>
-		<ContextMenu.Item class="cursor-pointer" on:click={openEditDialog}>
+	<ContextMenu.Content
+		style="min-width: 0;"
+		class=" w-[100px] p-0 border-third rounded-none bg-background"
+	>
+		<ContextMenu.Item
+			class="cursor-pointer data-[highlighted]:bg-primary rounded-none"
+			on:click={openEditDialog}
+		>
 			<Edit class="mr-2 size-4" />
 			<span>Edit</span>
 		</ContextMenu.Item>
 		<ContextMenu.Item
-			class="cursor-pointer dark:bg-red-700 dark:hover:bg-red-600 dark:data-[highlighted]:bg-red-600 bg-red-500 hover:bg-red-400 data-[highlighted]:bg-red-400"
-			on:click={deleteUser}
+			class="cursor-pointer data-[highlighted]:bg-primary rounded-none"
+			on:click={deletePlaylist}
 		>
-			<X class="mr-2 size-4" />
+			<Trash class="mr-2 size-4 stroke-red-600" />
 			<span>Remove</span></ContextMenu.Item
 		>
 	</ContextMenu.Content>

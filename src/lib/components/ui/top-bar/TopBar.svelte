@@ -14,12 +14,16 @@
 	};
 </script>
 
-<Dialog.Root bind:open={showHelp}>
-	<Dialog.Content class="bg-backgroundSecondary">
+<Dialog.Root bind:open={showHelp} closeOnOutsideClick={false}>
+	<Dialog.Content
+		style="z-index:100;"
+		class="bg-backgroundSecondary border-none"
+		on:click={(event) => event.preventDefault()}
+	>
 		<Dialog.Header>
 			<Dialog.Title>Help</Dialog.Title>
 		</Dialog.Header>
-		<Accordion.Root class="w-full">
+		<Accordion.Root class="w-full border-spacing-0 border-collapse">
 			<Accordion.Item value="item-1">
 				<Accordion.Trigger>About application</Accordion.Trigger>
 				<Accordion.Content
@@ -52,7 +56,7 @@
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
-	class="h-[25px] w-screen bg-third grid grid-cols-3 items-center justify-center select-none cursor-default p-0"
+	class="h-[25px] w-screen bg-third grid grid-cols-3 items-center justify-center select-none cursor-default p-0 z-50"
 	on:mousedown={startDrag}
 >
 	<div class="w-full h-[80%] flex items-center justify-start space-x-2">
@@ -71,7 +75,21 @@
 		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<div
 			class="items-center justify-center flex h-full cursor-pointer"
-			on:click={() => (showHelp = true)}
+			on:click={() => {
+				showHelp = true;
+				setTimeout(() => {
+					const overlays = document.getElementsByClassName('bg-background/80');
+					for (const element of overlays) {
+						// element.classList.replace('fixed', 'absolute');
+						element.classList.replace('inset-0', 'top-30');
+						element.classList.replace('bg-background/80', 'bg-background/90');
+						element.classList.add('bottom-0', 'left-0', 'right-0', 'w-full', 'h-[95vh]');
+						element.addEventListener('click', () => {
+							showHelp = false;
+						});
+					}
+				}, 1);
+			}}
 			on:mousedown={(e) => e.stopImmediatePropagation()}
 		>
 			<HelpCircle size="16" />
@@ -85,7 +103,7 @@
 		<div
 			class="hover:bg-backgroundSecondary h-full w-[12.5%] flex items-center justify-center"
 			on:click={async () => {
-				await appWindow.hide();
+				await appWindow.minimize();
 			}}
 			on:mousedown={(e) => e.stopImmediatePropagation()}
 		>

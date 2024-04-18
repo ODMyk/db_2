@@ -10,21 +10,17 @@
 	import { Check, Edit, MoreHorizontal, Trash, X } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
 	import { Input } from '$lib/components/ui/input';
-	import * as Select from '$lib/components/ui/select';
-	import type { Tier } from '$lib';
-	import * as Tooltip from '$lib/components/ui/tooltip';
+	import Checkbox from '../checkbox/checkbox.svelte';
+	import { Switch } from '../switch';
 
 	export let Id: number;
-	export let TierId: number;
-	export let Nickname: string;
-	export let Email: string;
-	export let Password: string;
-	export let tiers: Tier[];
+	export let Title: string;
+	export let Price: number;
+	export let Limited: boolean;
 
-	let newNickname: string;
-	let newEmail: string;
-	let newPassword: string;
-	let newTierId: number;
+	let newTitle: string;
+	let newPrice: number;
+	let newLimited: boolean;
 
 	let row: HTMLElement | null | undefined;
 	let rowSelected = false;
@@ -42,33 +38,20 @@
 		} else {
 			id = toast.error(result[0]);
 		}
-		setTimeout(() => toast.dismiss(id), 2600);
+		setTimeout(() => toast.dismiss(id), 1600);
 	};
 
-	const editUser = () => {
+	const editTier = () => {
 		// api-call here
-		toast.success('Successfully edited user');
+		toast.success('Successfully edited tier');
 		editMode = false;
 	};
 
 	const openEditDialog = () => {
 		editMode = true;
-		newNickname = Nickname;
-		newEmail = Email;
-		newPassword = Password;
-		newTierId = TierId;
-		setTimeout(() => {
-			const overlays = document.getElementsByClassName('bg-background/80');
-			for (const element of overlays) {
-				// element.classList.replace('fixed', 'absolute');
-				element.classList.replace('inset-0', 'top-30');
-				element.classList.replace('bg-background/80', 'bg-background/90');
-				element.classList.add('bottom-0', 'left-0', 'right-0', 'w-full', 'h-[95vh]');
-				element.addEventListener('click', () => {
-					editMode = false;
-				});
-			}
-		}, 1);
+		newTitle = Title;
+		newPrice = Price;
+		newLimited = Limited;
 	};
 
 	onMount(() => {
@@ -105,43 +88,28 @@
 <Dialog.Root bind:open={editMode}>
 	<Dialog.Content class="border-none">
 		<Dialog.Header>
-			<Dialog.Title>Edit user entry</Dialog.Title>
+			<Dialog.Title>Edit tier entry</Dialog.Title>
 		</Dialog.Header>
 
 		<div class="grid grid-cols-4 w-full gap-4">
 			<div class="col-span-1 space-y-4">
 				<div class="flex items-center h-12 text-sm">Id</div>
-				<div class="flex items-center h-12 text-sm">Tier</div>
-				<div class="flex items-center h-12 text-sm">Nickname</div>
-				<div class="flex items-center h-12 text-sm">Email</div>
-				<div class="flex items-center h-12 text-sm">Password</div>
+				<div class="flex items-center h-12 text-sm">Title</div>
+				<div class="flex items-center h-12 text-sm">Price</div>
+				<div class="flex items-center h-12 text-sm">Limited</div>
 			</div>
-			<div class="col-span-3 space-y-4">
+			<div class="col-span-3 space-y-4 select-none">
 				<Input disabled value={Id} class="h-12 bg-backgroundSecondary" />
-				<Select.Root onSelectedChange={(v) => (newTierId = Number.parseInt(`${v?.value}`))}>
-					<Select.Trigger class="bg-backgroundSecondary h-12">
-						<Select.Value
-							placeholder={TierId.toString() +
-								' | ' +
-								tiers.filter((s) => s.Id === TierId)[0].Title}
-						/>
-					</Select.Trigger>
-					<Select.Content class="bg-third border-none">
-						<Select.Group>
-							{#each tiers as { Title, Id }}
-								<Select.Item value={Id} label={Id.toString() + ' | ' + Title} />
-							{/each}
-						</Select.Group>
-					</Select.Content>
-				</Select.Root>
-				<Input bind:value={newNickname} class="h-12 bg-backgroundSecondary" />
-				<Input bind:value={newEmail} class="h-12 bg-backgroundSecondary" />
-				<Input bind:value={newPassword} class="h-12 bg-backgroundSecondary" />
+				<Input bind:value={newTitle} class="h-12 bg-backgroundSecondary" />
+				<Input bind:value={newPrice} class="h-12 bg-backgroundSecondary" />
+				<div class="h-12 flex items-center">
+					<Switch bind:checked={newLimited} class="data-[state=unchecked]:bg-backgroundSecondary" />
+				</div>
 			</div>
 		</div>
 
 		<Dialog.Footer>
-			<Button class="bg-primary size-12 p-0" type="submit" on:click={editUser}
+			<Button class="bg-primary size-12 p-0" type="submit" on:click={editTier}
 				><Check size={24} /></Button
 			>
 		</Dialog.Footer>
@@ -155,24 +123,17 @@
 				<span bind:this={row} class="select-text">{Id}</span>
 			</Table.Cell>
 			<Table.Cell>
-				<Tooltip.Root>
-					<Tooltip.Trigger class="w-full">
-						<span bind:this={row} class="select-text">{TierId}</span>
-					</Tooltip.Trigger>
-					<Tooltip.Content>
-						<p>{tiers.find((t) => t.Id === TierId)?.Title}</p>
-					</Tooltip.Content>
-				</Tooltip.Root>
+				<span class="select-text">{Title}</span>
 			</Table.Cell>
 			<Table.Cell>
-				<span class="select-text">{Nickname}</span>
+				<span class="select-text">{Price}</span>
 			</Table.Cell>
-			<Table.Cell>
-				<span class="select-text">{Email}</span>
+			<Table.Cell class="p-0">
+				<div class="flex w-full justify-center">
+					<Checkbox disabled checked={Limited} class="disabled:hover:cursor-default" />
+				</div>
 			</Table.Cell>
-			<Table.Cell>
-				<span class="select-text">{Password}</span>
-			</Table.Cell>
+
 			<Table.Cell>
 				<DropdownMenu.Root
 					bind:open={actualDropdownMenuOpened}
@@ -181,7 +142,7 @@
 							() => {
 								dropdownMenuOpened = actualDropdownMenuOpened;
 							},
-							dropdownMenuOpened ? 100 : 0
+							actualDropdownMenuOpened ? 100 : 0
 						)}
 				>
 					<DropdownMenu.Trigger asChild let:builder>
@@ -197,7 +158,7 @@
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content
 						style="min-width: 0;"
-						class="w-[100px] p-0 bg-background border-third rounded-none"
+						class=" w-[100px] p-0 border-third rounded-none bg-background"
 					>
 						<DropdownMenu.Item
 							class="cursor-pointer data-[highlighted]:bg-primary rounded-none"
