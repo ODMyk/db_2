@@ -25,7 +25,7 @@
 <div
 	class="justify-center flex w-full h-[95vh]"
 	on:contextmenu={(event) => {
-		// event.preventDefault();
+		event.preventDefault();
 	}}
 >
 	<Tabs.Root value="tiers" class="w-[960px] select-none" onValueChange={invalidateAll}>

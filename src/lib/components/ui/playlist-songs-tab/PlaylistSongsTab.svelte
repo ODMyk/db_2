@@ -10,6 +10,7 @@
 	import * as Select from '$lib/components/ui/select';
 	import { toast } from 'svelte-sonner';
 	import PlaylistSongRow from '../playlist-song-row/PlaylistSongRow.svelte';
+	import { onMount } from 'svelte';
 
 	export let songs: Song[];
 	export let playlists: Playlist[];
@@ -21,6 +22,21 @@
 
 	let newPlaylistId = 0;
 	let newSongId = 0;
+
+	const initAvailableLinks = () => {
+		availableLinks.length = 0;
+		for (const p of playlists) {
+			for (const s of songs) {
+				if (!links.find((l) => l.PlaylistId === p.Id && l.SongId === s.Id)) {
+					availableLinks.push({ PlaylistId: p.Id, SongId: s.Id });
+				}
+			}
+		}
+	};
+
+	onMount(() => {
+		initAvailableLinks();
+	});
 
 	const openCreateDialog = () => {
 		if (playlists.length === 0) {
@@ -39,14 +55,7 @@
 			return;
 		}
 
-		availableLinks.length = 0;
-		for (const p of playlists) {
-			for (const s of songs) {
-				if (!links.find((l) => l.PlaylistId === p.Id && l.SongId === s.Id)) {
-					availableLinks.push({ PlaylistId: p.Id, SongId: s.Id });
-				}
-			}
-		}
+		initAvailableLinks();
 
 		creating = true;
 		newPlaylistId = playlists[0].Id;

@@ -46,3 +46,10 @@ export const load: PageServerLoad = () => {
 
     return { tiers, users, songs, playlists, links };
 }
+
+/* TODO:
+ - Validation
+ - SQL tab
+ - Backend instead of local lists
+ - Hotkeys
+*/
