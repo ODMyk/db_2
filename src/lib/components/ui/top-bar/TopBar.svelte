@@ -15,6 +15,8 @@
 </script>
 
 <Dialog.Root bind:open={showHelp} closeOnOutsideClick={false}>
+	<Dialog.Portal style="z-index: 99;" />
+	<Dialog.Overlay style="z-index:99;" />
 	<Dialog.Content
 		style="z-index:100;"
 		class="bg-backgroundSecondary border-none"

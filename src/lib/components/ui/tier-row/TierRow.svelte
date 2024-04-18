@@ -30,7 +30,7 @@
 	let triggerHidden = true;
 	let editMode = false;
 
-	const deleteUser = async () => {
+	const deleteTier = async () => {
 		const result: { 0: string; 1: boolean } = await invoke('delete_user', { id: Id });
 		let id: string | number = 0;
 		if (result[1]) {
@@ -52,6 +52,18 @@
 		newTitle = Title;
 		newPrice = Price;
 		newLimited = Limited;
+		setTimeout(() => {
+			const overlays = document.getElementsByClassName('bg-background/80');
+			for (const element of overlays) {
+				// element.classList.replace('fixed', 'absolute');
+				element.classList.replace('inset-0', 'top-30');
+				element.classList.replace('bg-background/80', 'bg-background/90');
+				element.classList.add('bottom-0', 'left-0', 'right-0', 'w-full', 'h-[95vh]');
+				element.addEventListener('click', () => {
+					editMode = false;
+				});
+			}
+		}, 1);
 	};
 
 	onMount(() => {
@@ -85,7 +97,7 @@
 	};
 </script>
 
-<Dialog.Root bind:open={editMode}>
+<Dialog.Root bind:open={editMode} closeOnOutsideClick={false}>
 	<Dialog.Content class="border-none">
 		<Dialog.Header>
 			<Dialog.Title>Edit tier entry</Dialog.Title>
@@ -169,7 +181,7 @@
 						</DropdownMenu.Item>
 						<DropdownMenu.Item
 							class="cursor-pointer data-[highlighted]:bg-primary rounded-none"
-							on:click={deleteUser}
+							on:click={deleteTier}
 						>
 							<Trash class="mr-2 size-4 stroke-red-600" />
 							<span>Remove</span>
@@ -199,7 +211,7 @@
 		</ContextMenu.Item>
 		<ContextMenu.Item
 			class="cursor-pointer data-[highlighted]:bg-primary rounded-none"
-			on:click={deleteUser}
+			on:click={deleteTier}
 		>
 			<Trash class="mr-2 size-4 stroke-red-600" />
 			<span>Remove</span></ContextMenu.Item

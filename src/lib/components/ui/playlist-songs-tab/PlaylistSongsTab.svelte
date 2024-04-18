@@ -58,8 +58,8 @@
 		initAvailableLinks();
 
 		creating = true;
-		newPlaylistId = playlists[0].Id;
-		newSongId = songs[0].Id;
+		newPlaylistId = availableLinks[0].PlaylistId;
+		newSongId = availableLinks[0].SongId;
 		setTimeout(() => {
 			const overlays = document.getElementsByClassName('bg-background/80');
 			for (const element of overlays) {
@@ -69,6 +69,7 @@
 				element.classList.add('bottom-0', 'left-0', 'right-0', 'w-full', 'h-[95vh]');
 				element.addEventListener('click', () => {
 					creating = false;
+					toast.info('I am first!');
 				});
 			}
 		}, 1);

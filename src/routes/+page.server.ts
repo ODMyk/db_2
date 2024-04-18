@@ -42,6 +42,7 @@ export const load: PageServerLoad = () => {
     const links: PlaylistSong[] = [
         { PlaylistId: 1, SongId: 1 },
         { PlaylistId: 1, SongId: 2 },
+        { PlaylistId: 1, SongId: 3 },
     ];
 
     return { tiers, users, songs, playlists, links };

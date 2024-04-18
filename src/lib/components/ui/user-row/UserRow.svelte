@@ -102,7 +102,7 @@
 	};
 </script>
 
-<Dialog.Root bind:open={editMode}>
+<Dialog.Root bind:open={editMode} closeOnOutsideClick={false}>
 	<Dialog.Content class="border-none">
 		<Dialog.Header>
 			<Dialog.Title>Edit user entry</Dialog.Title>
