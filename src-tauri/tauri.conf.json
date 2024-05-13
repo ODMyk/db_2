@@ -12,11 +12,54 @@
   },
   "tauri": {
     "allowlist": {
-      "all": true
+      "all": false,
+      "shell": {
+        "all": false,
+        "execute": false,
+        "open": true,
+        "scope": [],
+        "sidecar": false
+      },
+      "window": {
+        "all": false,
+        "center": false,
+        "close": true,
+        "create": false,
+        "hide": false,
+        "maximize": false,
+        "minimize": true,
+        "print": false,
+        "requestUserAttention": false,
+        "setAlwaysOnTop": false,
+        "setClosable": false,
+        "setContentProtected": false,
+        "setCursorGrab": false,
+        "setCursorIcon": false,
+        "setCursorPosition": false,
+        "setCursorVisible": false,
+        "setDecorations": false,
+        "setFocus": false,
+        "setFullscreen": false,
+        "setIcon": false,
+        "setIgnoreCursorEvents": false,
+        "setMaxSize": false,
+        "setMaximizable": false,
+        "setMinSize": false,
+        "setMinimizable": false,
+        "setPosition": false,
+        "setResizable": false,
+        "setSize": false,
+        "setSkipTaskbar": false,
+        "setTitle": false,
+        "show": false,
+        "startDragging": true,
+        "unmaximize": false,
+        "unminimize": false
+      }
     },
     "bundle": {
-      "active": true,
-      "category": "DeveloperTool",
+      "active": false,
+      "category": "Education",
       "copyright": "",
       "deb": {
         "depends": []
@@ -29,7 +72,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.dmyko.db2",
+      "identifier": "com.dmyko.music-admin",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -58,7 +101,7 @@
         "fullscreen": false,
         "height": 768,
         "resizable": false,
-        "title": "Databases and Informational Systems Project 2",
+        "title": "Music Admin",
         "width": 1024,
         "decorations": false
       }

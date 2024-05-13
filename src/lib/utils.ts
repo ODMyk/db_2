@@ -60,3 +60,64 @@ export const flyAndScale = (
 		easing: cubicOut
 	};
 };
+
+export const validateInteger = (numberString: string, value_setter: (n: number) => void, error_setter: (msg: string) => void) => {
+	const number = Number.parseInt(numberString);
+	if (Number.isNaN(number)) {
+		error_setter('Must be an integer');
+		return false;
+	}
+
+	value_setter(number);
+	return true;
+};
+
+export const validateUnsigned = (numberString: string, value_setter: (n: number) => void, error_setter: (msg: string) => void) => {
+	const number = Number.parseInt(numberString);
+	if (Number.isNaN(number)) {
+		error_setter('Must be an integer');
+		return false;
+	}
+
+	if (number < 0) {
+		error_setter('Must be non-negative');
+		return false;
+	}
+
+	value_setter(number);
+	return true;
+};
+
+export const validateUnsignedDouble = (numberString: string, value_setter: (n: number) => void, error_setter: (msg: string) => void) => {
+	const number = Number.parseFloat(numberString);
+	if (Number.isNaN(number)) {
+		error_setter('Must be a number');
+		return false;
+	}
+
+	if (number < 0) {
+		error_setter('Must be non-negative');
+		return false;
+	}
+
+	value_setter(number);
+	return true;
+}
+
+export const validateStringLongerThan = (val: string, len: number, error_setter: (msg: string) => void) => {
+	if (val.length <= len) {
+		error_setter(`Must be longer than ${len} characters`);
+		return false;
+	}
+
+	return true;
+};
+
+export const validateStringShorterThan = (val: string, len: number, error_setter: (msg: string) => void) => {
+	if (val.length >= len) {
+		error_setter(`Must be shorter than ${len} characters`);
+		return false;
+	}
+
+	return true;
+};
